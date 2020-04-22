@@ -6,21 +6,18 @@ const fs = require('fs')
 const uuid = require('uuid')
 
 
-
-const DB_DIR = path.resolve(__dirname, "../db");
+const DB_DIR = path.resolve(__dirname, "./db");
 const DB_Path = path.join(DB_DIR, "db.json");
 console.log(DB_Path)
-// const readFilePromise = util.promisify(fs.readFile()
 
 // Sets up the Express App
 // =============================================================
 const app = express()
 const PORT = 3080
 
-// Sets up the Express app to handle data parsing
+// Sets up the Express app to handle data parsing and middleware
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-
 app.use(express.static(__dirname));
 
 // Routes
@@ -43,25 +40,15 @@ app.get('/api/notes', function (req, res) {
     })
 })
 
-
-// Create New Notes
+// Create New Notes and write it back to the file
 app.post('/api/notes', function (req, res) {
 
     const newNotes = req.body
-  
-    console.log(newNotes)
-
     fs.readFile(DB_Path,'utf8',(error,data)=>{
         if(error) console.log(error)
-        console.log('line55' + data)
-        console.log(JSON.parse(data))
         let dataObj = JSON.parse(data)
-        console.log('The new Notes type is: ' + typeof(newNotes))
-        console.log(dataObj)
         newNotes.id = uuid.v4()
         dataObj.push(newNotes)
-        console.log(newNotes)
-        console.log(uuid.v4())
         fs.writeFile(DB_Path, JSON.stringify(dataObj), (err) => {
             if (err) throw err;
             else return res.json(dataObj)
@@ -70,18 +57,9 @@ app.post('/api/notes', function (req, res) {
     
   })
 
-
-app.delete('/api/delete', function (req, res) {
-
-    tables = [];
-    console.log("this is the current state of table: "+tables)
-})
-
-
+// Delete notes based on the id
 app.delete('/api/notes/:id', function (req, res) {
     const noteID = req.params.id
-    console.log(noteID)
-  
     fs.readFile(DB_Path,'utf8',(error,data)=>{
         if(error) console.log(error)
         let dataObj = JSON.parse(data)
