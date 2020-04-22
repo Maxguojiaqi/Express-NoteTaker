@@ -3,7 +3,8 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
-const util = require('util')
+const uuid = require('uuid')
+
 
 
 const DB_DIR = path.resolve(__dirname, "../db");
@@ -22,35 +23,6 @@ app.use(express.json())
 
 app.use(express.static(__dirname));
 
-// Tables Object
-// =============================================================
-let tables = [
-  {
-    customerName: 'Max',
-    phoneNumber: '613-000-0000',
-    customerEmail: 'max@fakemail.com',
-    customerID: 'sa34fa'
-  },
-  {
-    customerName: 'Dustin',
-    phoneNumber: '613-000-0000',
-    customerEmail: 'dustin@fakemail.com',
-    customerID: 'bv97al'
-  },
-  {
-    customerName: 'Mike',
-    phoneNumber: '613-000-0000',
-    customerEmail: 'mike@fakemail.com',
-    customerID: 'ts21ja'
-  },
-  {
-    customerName: 'Solomeneke',
-    phoneNumber: '613-000-0000',
-    customerEmail: 'solomeneke@fakemail.com',
-    customerID: 'kq42ba'
-  }
-]
-
 // Routes
 // =============================================================
 
@@ -67,51 +39,64 @@ app.get('/notes', function (req, res) {
 app.get('/api/notes', function (req, res) {
     fs.readFile(DB_Path,'utf8',(error,data)=>{
         if(error) console.log(error)
-        // console.log(data)
-        // console.log('this is the data' + data)
         return res.json(data)
     })
 })
 
-// Displays all Tabels
-app.get('/api/tablesAll', function (req, res) {
-  return res.json(tables)
-})
 
-// Displays waitlist Tabels
-app.get('/api/waitlist', function (req, res) {
+// Create New Notes
+app.post('/api/notes', function (req, res) {
 
-    if(tables.length<5) 
-    {
-        return res.json('Nobody on the waitlist!')
-    }
+    const newNotes = req.body
+  
+    console.log(newNotes)
 
-    else return res.json(tables.slice(5))
-})
+    fs.readFile(DB_Path,'utf8',(error,data)=>{
+        if(error) console.log(error)
+        console.log('line55' + data)
+        console.log(JSON.parse(data))
+        let dataObj = JSON.parse(data)
+        console.log('The new Notes type is: ' + typeof(newNotes))
+        console.log(dataObj)
+        newNotes.id = uuid.v4()
+        dataObj.push(newNotes)
+        console.log(newNotes)
+        console.log(uuid.v4())
+        fs.writeFile(DB_Path, JSON.stringify(dataObj), (err) => {
+            if (err) throw err;
+            else return res.json(dataObj)
+        });
+    })
+    
+  })
 
-// Create New Tabels - takes in JSON input
-app.post('/api/tables', function (req, res) {
 
-  const newTable = req.body
-
-  console.log(newTable)
-
-  tables.push(newTable)
-
-  res.json(newTable)
-})
-// clear up all the tables
-app.post('/api/clear', function (req, res) {
-
-    tables = [];
-    res.json(tables)
-})
-
-app.post('/api/delete', function (req, res) {
+app.delete('/api/delete', function (req, res) {
 
     tables = [];
     console.log("this is the current state of table: "+tables)
 })
+
+
+app.delete('/api/notes/:id', function (req, res) {
+    const noteID = req.params.id
+    console.log(noteID)
+  
+    fs.readFile(DB_Path,'utf8',(error,data)=>{
+        if(error) console.log(error)
+        let dataObj = JSON.parse(data)
+        for (let note of dataObj) {
+            if (note.id === noteID) {
+                dataObj.splice( dataObj.indexOf(note), 1 )
+            }
+        }
+
+        fs.writeFile(DB_Path, JSON.stringify(dataObj), (err) => {
+            if (err) throw err;
+            else return res.json(dataObj)
+        });
+    })
+  })
 
 // Starts the server to begin listening
 // =============================================================

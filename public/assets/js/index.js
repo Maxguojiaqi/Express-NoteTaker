@@ -17,6 +17,7 @@ let getNotes = function () {
 
 // A function for saving a note to the db
 let saveNote = function (note) {
+  console.log(note)
   return $.ajax({
     url: '/api/notes',
     data: note,
@@ -66,6 +67,7 @@ let handleNoteSave = function () {
 let handleNoteDelete = function (event) {
   // prevents the click listener for the list from being called when the button inside of it is clicked
   event.stopPropagation()
+  console.log('delete node clicked')
 
   let note = $(this)
     .parent('.list-group-item')
@@ -84,6 +86,8 @@ let handleNoteDelete = function (event) {
 // Sets the activeNote and displays it
 let handleNoteView = function () {
   activeNote = $(this).data()
+  console.log(activeNote)
+  console.log('active node clicked')
   renderActiveNote()
 }
 
