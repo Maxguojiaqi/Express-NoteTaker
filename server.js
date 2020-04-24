@@ -8,7 +8,6 @@ const uuid = require('uuid')
 
 const DB_DIR = path.resolve(__dirname, "./db");
 const DB_Path = path.join(DB_DIR, "db.json");
-console.log(DB_Path)
 
 // Sets up the Express App
 // =============================================================
@@ -18,18 +17,18 @@ const PORT = process.env.PORT || 3080
 // Sets up the Express app to handle data parsing and middleware
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(express.static(__dirname));
+app.use(express.static(__dirname + "/public"));
 
 // Routes
 // =============================================================
 
 // Basic route that sends the user first to the AJAX Page
 app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'))
+  res.sendFile(path.join(__dirname, './public/index.html'))
 })
 
 app.get('/notes', function (req, res) {
-  res.sendFile(path.join(__dirname, 'notes.html'))
+  res.sendFile(path.join(__dirname, './public/notes.html'))
 })
 
 // Displays all Notes
