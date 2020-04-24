@@ -13,7 +13,7 @@ console.log(DB_Path)
 // Sets up the Express App
 // =============================================================
 const app = express()
-const PORT = 3080
+const PORT = process.env.PORT || 3080
 
 // Sets up the Express app to handle data parsing and middleware
 app.use(express.urlencoded({ extended: true }))
@@ -68,13 +68,17 @@ app.delete('/api/notes/:id', function (req, res) {
                 dataObj.splice( dataObj.indexOf(note), 1 )
             }
         }
-
         fs.writeFile(DB_Path, JSON.stringify(dataObj), (err) => {
             if (err) throw err;
             else return res.json(dataObj)
         });
     })
   })
+
+// default route when none matching
+app.get('*', (req, res) => {
+    res.redirect('/');
+});
 
 // Starts the server to begin listening
 // =============================================================
